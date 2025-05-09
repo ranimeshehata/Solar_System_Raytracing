@@ -39,3 +39,8 @@ Apply computer graphics and ray tracing techniques to render a single high-quali
 - **Skybox** (Team Member 3)
 - **Atmospheric Scattering / Sun’s Glow** (Team Member 2)
 - **Real-time or Semi-real-time Renderer** (Collaborative, optional)
+
+
+## Resources
+- [**OpenGl Playlist**](https://youtu.be/bmCYgoCAyMQ?si=TPFQyBV041nCOI2d) – The GitHub repository for the code is available in the video description.
+- [**Solar System Simulator**](https://www.solarsystemscope.com/)
