@@ -28,7 +28,7 @@ def main():
 
     venus = Planet(
         r=0.5,
-        texture_path="assets/texture/planets/venus.png",
+        texture_path="assets/texture/planets/earth_nasa.png",
         sectors=SECTORS,
         stacks=STACKS,
         rotation_speed=0.5,
