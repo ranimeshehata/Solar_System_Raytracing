@@ -17,6 +17,8 @@ WINDOW_Y = 30
 WINDOW_TITLE = "Solar System Raytracing"
 SECTORS = 36
 STACKS = 18
+
+# Load scene configuration from JSON
 TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = parse_json()
 
 PLANET_DATA = [
@@ -93,6 +95,9 @@ def main():
 
     glfw.set_input_mode(renderer.window, glfw.STICKY_KEYS, GL_TRUE)
 
+    # --- Use TIME from JSON as simulation start time ---
+    start_time = TIME
+    
     while not glfw.window_should_close(renderer.window):
         glfw.poll_events()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -143,6 +148,7 @@ def main():
         camera.position_camera(view_loc)
         model_matrix = pyrr.matrix44.create_identity(dtype=np.float32)
         time_elapsed = glfw.get_time()
+        
         for planet in planets:
             if planet.parent == "Earth":
                 # Moon orbits Earth
@@ -169,7 +175,10 @@ def main():
                 ])
             model_matrix = pyrr.matrix44.create_from_translation(pos)
             planet.draw(model_loc, model_matrix, time_elapsed)
-
+        
+        # Use simulation time
+        time_elapsed = start_time + glfw.get_time()
+        
         glfw.swap_buffers(renderer.window)
     glfw.terminate()
 
