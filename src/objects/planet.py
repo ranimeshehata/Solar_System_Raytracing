@@ -5,6 +5,7 @@ from OpenGL.GL import *
 import pyrr
 from objects.sphere import Sphere
 
+
 class Planet:
     """
     A class to represent a textured, rotating 3D planet using OpenGL.
@@ -18,7 +19,17 @@ class Planet:
         vao, vbo, ebo: OpenGL buffer identifiers.
     """
 
-    def __init__(self, r, texture_path, sectors=36, stacks=18, orbit_radius=0.0, orbit_speed=0.0, rotation_speed=0.5, parent=None):
+    def __init__(
+        self,
+        r,
+        texture_path,
+        sectors=36,
+        stacks=18,
+        orbit_radius=0.0,
+        orbit_speed=0.0,
+        rotation_speed=0.5,
+        parent=None,
+    ):
         """
         Initialize the planet with geometry and texture.
 
@@ -86,18 +97,6 @@ class Planet:
             model_matrix (np.ndarray): Initial model transformation matrix (4x4).
             time_elapsed (float): Time passed (used to animate rotation).
         """
-        
-        # Compute orbit translation
-        # angle = self.orbit_speed * time_elapsed
-        # orbit_translation = pyrr.matrix44.create_from_translation([
-        #     self.orbit_radius * np.cos(angle),
-        #     0.0,
-        #     self.orbit_radius * np.sin(angle)
-        # ], dtype=np.float32)
-
-        # # Combine orbit and rotation
-        # model_matrix = pyrr.matrix44.multiply(model_matrix, orbit_translation)
-        # model_matrix = pyrr.matrix44.multiply(model_matrix, rotation_matrix)
 
         # Create rotation around X and Y axes (same as before)
         rot_x = pyrr.Matrix44.from_x_rotation(1.5)
@@ -158,8 +157,10 @@ class Planet:
             np.array(self.indices, dtype=np.uint32),
             GL_STATIC_DRAW,
         )
-    
-    def draw_atmosphere(self, model_loc, model_matrix, color=(0.4, 0.6, 1.0), alpha=0.25):
+
+    def draw_atmosphere(
+        self, model_loc, model_matrix, color=(0.4, 0.6, 1.0), alpha=0.25
+    ):
         """
         Draw a semi-transparent, slightly larger sphere to simulate atmosphere.
         Args:
@@ -172,7 +173,9 @@ class Planet:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         # Scale up the model matrix for the atmosphere shell
         scale = pyrr.matrix44.create_from_scale([1.25, 1.25, 1.25])
-        atmosphere_matrix = pyrr.matrix44.multiply(scale, model_matrix)  # <-- scale first, then translate/rotate
+        atmosphere_matrix = pyrr.matrix44.multiply(
+            scale, model_matrix
+        )  # <-- scale first, then translate/rotate
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, atmosphere_matrix)
         # Use solid color (set in main loop)
         glBindVertexArray(self.vao)
@@ -181,6 +184,3 @@ class Planet:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
         glBindVertexArray(0)
         glDisable(GL_BLEND)
-    
-    def draw_ring(self):
-        pass
