@@ -7,7 +7,7 @@ from objects.planet import Planet
 from utils.json_parser import parse_json
 from utils.window_renderer import WindowRenderer
 from effects.skybox import SkyboxGL
-from objects.orbit import Orbit
+from transformation.orbit import Orbit
 from effects.saturn_ring import SaturnRing
 
 
@@ -106,6 +106,14 @@ def main():
     # --- Use TIME from JSON as simulation start time ---
     start_time = TIME
 
+    def window_size_callback(window, width, height):
+        global WINDOW_H, WINDOW_W
+        glViewport(0, 0, width, height)
+        WINDOW_W = width
+        WINDOW_H = height
+
+    glfw.set_window_size_callback(renderer.window, window_size_callback)
+
     while not glfw.window_should_close(renderer.window):
         glfw.poll_events()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -125,27 +133,6 @@ def main():
 
         glUniform1i(use_solid_color_loc, 1)  # Enable solid color
         glUniform3f(solid_color_loc, 0.6235, 0.6314, 0.6235)
-
-        for planet, orbit in zip(planets, orbits):
-            if planet.name == "Moon":
-
-                # Find Earth's current position
-                earth = next(p for p in planets if p.name == "Earth")
-                earth_angle = earth.orbit_speed * time_elapsed
-                earth_pos = np.array(
-                    [
-                        earth.orbit_radius * np.cos(earth_angle),
-                        0,
-                        earth.orbit_radius * np.sin(earth_angle),
-                    ]
-                )
-
-                # Create translation matrix for Moon's orbit
-                model = pyrr.matrix44.create_from_translation(earth_pos)
-                orbit.draw(model_loc, model)
-            else:
-                # Draw normal orbits centered at the Sun
-                orbit.draw(model_loc)
 
         # Draw orbits
         for orbit in orbits:
