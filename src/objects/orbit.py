@@ -14,7 +14,6 @@ class Orbit:
         x = self.radius * np.cos(theta)
         z = self.radius * np.sin(theta)
         y = np.zeros_like(x)
-        # Add dummy texcoords (0,0) for each vertex
         texcoords = np.zeros((self.segments, 2), dtype=np.float32)
         vertices = np.column_stack([x, y, z, texcoords]).astype(np.float32)
 
