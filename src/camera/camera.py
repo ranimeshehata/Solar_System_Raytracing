@@ -8,7 +8,8 @@ from ray_tracing.vectors import normalize
 
 class CAMERA:
     def __init__(
-        self, window, camera_eye, camera_target, camera_up, camera_rot=[0.0, 0.0, 0.0]
+        self, window, camera_eye, camera_target, camera_up, camera_rot=[0.0, 0.0, 0.0],width=400,
+        height=300,  
     ):
         self.camera_eye = Vector3(camera_eye)
         self.camera_target = Vector3(camera_target)
@@ -16,6 +17,9 @@ class CAMERA:
         self.camera_rot = Vector3(camera_rot)
         self.window = window
         self.start_time = time.time()
+        self.width = width  
+        self.height = height  
+        self.aspect_ratio = width / height 
 
     def _handle_input(self):
         current_time = time.time()
@@ -100,4 +104,4 @@ class CAMERA:
         v = 1 - ((y + dy) / self.height) * 2
         u *= self.aspect_ratio
         direction = normalize(np.array([u, v, -1.0]))
-        return (self.origin, direction)
+        return (self.camera_eye, direction)

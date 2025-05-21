@@ -1,21 +1,33 @@
 import numpy as np
 from PIL import Image
+from pyrr import Vector3
 from tqdm import tqdm  
 
-from camera.camera import Camera
+
+from camera.camera import CAMERA
 from ray_tracing.material import Material
 from ray_tracing.ray import ray_color
 from ray_tracing.scene import Scene
 from ray_tracing.sphere import Sphere
 from ray_tracing.texture import ImageTexture
+from utils.json_parser import parse_json
 
 
 def main():
     width, height = 400, 300
     samples_per_pixel = 4  
     ambient = 0.1
-    aspect_ratio = width / height
-    camera_origin = np.array([0.0, 10.0, 50.0])
+    # load configurations of the scene scene
+    time, camera_eye, camera_target, camera_up = parse_json()
+    camera = CAMERA(
+        window=None,  
+        camera_eye=camera_eye,
+        camera_target=camera_target,
+        camera_up=camera_up,
+        width=width,  
+        height=height
+    )
+    
     max_depth = 5
 
     # loading textures
@@ -36,7 +48,6 @@ def main():
         light_sphere
     ]
     scene = Scene(spheres, light_sphere)
-    camera = Camera(camera_origin, width, height, aspect_ratio)
 
     # initializing the output image 
     image = np.zeros((height, width, 3), dtype=np.float32)
