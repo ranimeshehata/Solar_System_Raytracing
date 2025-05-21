@@ -18,7 +18,7 @@ class Planet:
         vao, vbo, ebo: OpenGL buffer identifiers.
     """
 
-    def __init__(self, r, texture_path, sectors=36, stacks=18, rotation_speed=0.5, orbit_radius=0.0, orbit_speed=0.0, parent=None):
+    def __init__(self, r, texture_path, sectors=36, stacks=18, orbit_radius=0.0, orbit_speed=0.0, rotation_speed=0.5, parent=None):
         """
         Initialize the planet with geometry and texture.
 

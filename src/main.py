@@ -7,6 +7,7 @@ from objects.planet import Planet
 from utils.json_parser import parse_json
 from utils.window_renderer import WindowRenderer
 from effects.skybox import SkyboxGL
+from objects.orbit import Orbit
 
 # constants
 WINDOW_WIDTH = 1920
@@ -19,19 +20,51 @@ STACKS = 18
 TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = parse_json()
 
 PLANET_DATA = [
-    # name, radius, texture, orbit_radius, orbit_speed, rotation_speed
-    ("Sun",     0.7, "assets/texture/sun.png", 0.0, 0.0, 0.0),
-    ("Mercury", 0.1, "assets/texture/planets/mercury.png", 2.0, 4.15, 0.3),
-    ("Venus",   0.15, "assets/texture/planets/venus.png", 3.0, 1.62, 0.2),
-    ("Earth",   0.5, "assets/texture/planets/earth_nasa.png", 5.0, 1.0, 0.5),
-    ("Mars",    0.18, "assets/texture/planets/mars.png", 7.0, 0.53, 0.4),
-    ("Jupiter", 0.3, "assets/texture/planets/jupiter.png", 10.0, 0.08, 0.6),
-    ("Saturn",  0.25, "assets/texture/planets/saturn/saturn.png", 13.0, 0.03, 0.7),
-    ("Uranus",  0.2, "assets/texture/planets/uranus.png", 16.0, 0.011, 0.8),
-    ("Neptune", 0.15, "assets/texture/planets/neptune.png", 19.0, 0.006, 0.9),
-    # Example for the Moon (orbits Earth)
-    ("Moon", 0.05, "assets/texture/moon.png", 0.8, 12.0, 1.0, "Earth"),
+    # name,      radius, texture,                           orbit_radius, orbit_speed, rotation_speed, parent
+    ("Sun",     1.0,    "assets/texture/sun.png",           0.0,         0.0,         0.0),
+    ("Mercury", 0.15,   "assets/texture/planets/mercury.png", 2.0,       4.15,        0.3),
+    ("Venus",   0.18,   "assets/texture/planets/venus.png",   3.0,       1.62,        0.2),
+    ("Earth",   0.20,   "assets/texture/planets/earth_nasa.png", 4.0,    1.0,         0.5),
+    ("Mars",    0.17,   "assets/texture/planets/mars.png",     5.5,      0.53,        0.4),
+    ("Jupiter", 0.40,   "assets/texture/planets/jupiter.png",  7.5,      0.08,        0.6),
+    ("Saturn",  0.35,   "assets/texture/planets/saturn/saturn.png", 9.0, 0.03,        0.7),
+    ("Uranus",  0.28,   "assets/texture/planets/uranus.png",  11.0,      0.011,       0.8),
+    ("Neptune", 0.27,   "assets/texture/planets/neptune.png", 13.0,      0.006,       0.9),
+    ("Moon",    0.07,   "assets/texture/moon.png",            0.5,       12.0,        1.0, "Earth"),
 ]
+
+# PLANET_DATA = [
+#     # name, radius, texture, scaled_orbit_radius, orbit_speed, rotation_speed, parent
+#     # radius is in AU, scaled_orbit_radius is in AU, orbit_speed is in degrees per second
+#     ("Sun",     0.6963, "assets/texture/sun.png", 0.0, 0.0, 0.0),
+#     ("Mercury", 0.0244, "assets/texture/planets/mercury.png", 1.93486, 4.15, 0.3),
+#     ("Venus",   0.0605, "assets/texture/planets/venus.png", 3.61388, 1.62, 0.2),
+#     ("Earth",   0.0637, "assets/texture/planets/earth_nasa.png", 5.00064, 1.0, 0.5),
+#     ("Mars",    0.0339, "assets/texture/planets/mars.png", 7.61086, 0.53, 0.4),
+#     ("Jupiter", 0.6991, "assets/texture/planets/jupiter.png", 25.9959, 0.08, 0.6),
+#     ("Saturn",  0.5823, "assets/texture/planets/saturn/saturn.png", 27.8459, 0.03, 0.7),
+#     ("Uranus",  0.2536, "assets/texture/planets/uranus.png", 29.1575, 0.011, 0.8),
+#     ("Neptune", 0.2462, "assets/texture/planets/neptune.png", 36.6073, 0.006, 0.9),
+#     ("Moon",    0.0174, "assets/texture/moon.png", 1.28256, 12.0, 1.0, "Earth"),
+# ]
+
+# PLANET_DATA = [
+#     ("Sun",     10*0.01,     "assets/texture/sun.png",      0.0,    0.0,   0.0),
+#     ("Mercury", 0.035*0.01,  "assets/texture/planets/mercury.png",  0.095,  4.15,  0.3),
+#     ("Venus",   0.085*0.01,  "assets/texture/planets/venus.png",    0.176,  1.62,  0.2),
+#     ("Earth",   0.09*0.01,   "assets/texture/planets/earth_nasa.png", 0.245, 1.0,   0.5),
+#     ("Mars",    0.05*0.01,   "assets/texture/planets/mars.png",     0.372,  0.53,  0.4),
+#     ("Jupiter", 1.0*0.01, "assets/texture/planets/jupiter.png",  1.274, 0.08,  0.6),
+#     ("Saturn",  0.83*0.01,   "assets/texture/planets/saturn/saturn.png", 2.345, 0.03, 0.7),
+#     ("Saturn Rings", 2.0*0.01, "assets/texture/planets/saturn/saturn ring.png", 2.345, 0.0, 0.0),
+#     ("Uranus",  0.36*0.01,   "assets/texture/planets/uranus.png",  4.709, 0.011, 0.8),
+#     ("Neptune", 0.35*0.01,   "assets/texture/planets/neptune.png", 7.355, 0.006, 0.9),
+#     ("Moon",    0.025*0.01,  "assets/texture/moon.png", 0.006, 12.0, 1.0, "Earth"),
+# ]
+
+
+
+
 
 
 def main():
@@ -46,6 +79,7 @@ def main():
     
     # --- Initialize the planets ---
     planets = []
+    orbits = []
     for data in PLANET_DATA:
         if len(data) == 7:
             name, r, texture, orbit_radius, orbit_speed, rotation_speed, parent = data
@@ -64,6 +98,10 @@ def main():
         )
         planet.name = name
         planets.append(planet)
+        
+        # Add orbit for planets that orbit the sun (not the sun itself or moons)
+        if orbit_radius > 0 and parent is None:
+            orbits.append(Orbit(orbit_radius))
     
     camera = CAMERA(renderer.window, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP)
 
@@ -99,6 +137,22 @@ def main():
         skybox.draw(camera.get_view_matrix(), projection)
         glDepthMask(GL_TRUE)
         glDepthFunc(GL_LESS)
+        
+        glUseProgram(renderer.shader)
+        camera.position_camera(view_loc)
+
+        use_solid_color_loc = glGetUniformLocation(renderer.shader, "useSolidColor")
+        solid_color_loc = glGetUniformLocation(renderer.shader, "solidColor")
+
+        glUniform1i(use_solid_color_loc, 1)  # Enable solid color
+        glUniform3f(solid_color_loc, 1.0, 1.0, 1.0) 
+
+        # Draw orbits here
+        for orbit in orbits:
+            orbit.draw(model_loc)
+
+        glUniform1i(use_solid_color_loc, 0)  # Restore to textured mode for planets
+        
 
         # Draw planets
         glUseProgram(renderer.shader)
