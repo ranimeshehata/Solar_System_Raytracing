@@ -1,5 +1,7 @@
 import numpy as np
-from vectors import random_point_on_sphere, reflect, normalize
+
+from ray_tracing.vectors import random_point_on_sphere,normalize, reflect
+
 
 def soft_shadow(point, scene, current_sphere, light_sphere, num_samples=50):
     shadow_count = 0

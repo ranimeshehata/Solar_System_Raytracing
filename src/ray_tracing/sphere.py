@@ -1,5 +1,7 @@
 import numpy as np
-from vectors import normalize, get_sphere_uv
+
+from ray_tracing.vectors import get_sphere_uv, normalize
+
 
 class HitRecord:
     def __init__(self, t, point, normal, sphere, u, v):
