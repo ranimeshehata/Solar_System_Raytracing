@@ -20,6 +20,7 @@ TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = parse_json()
 
 PLANET_DATA = [
     # name, radius, texture, orbit_radius, orbit_speed, rotation_speed
+    ("Sun",     0.7, "assets/texture/sun.png", 0.0, 0.0, 0.0),
     ("Mercury", 0.1, "assets/texture/planets/mercury.png", 2.0, 4.15, 0.3),
     ("Venus",   0.15, "assets/texture/planets/venus.png", 3.0, 1.62, 0.2),
     ("Earth",   0.5, "assets/texture/planets/earth_nasa.png", 5.0, 1.0, 0.5),
@@ -70,7 +71,7 @@ def main():
     camera = CAMERA(renderer.window, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP)
 
     # --- Initialize the skybox ---
-    skybox = SkyboxGL("assets/texture/sky/skyfield.png")
+    skybox = SkyboxGL("assets/texture/space.png")
     
     glUseProgram(renderer.shader)
 
