@@ -23,7 +23,7 @@ TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = parse_json()
 
 PLANET_DATA = [
     # name,      radius, texture,                           orbit_radius, orbit_speed, rotation_speed, parent
-    ("Sun",     1.0,    "assets/texture/sun.png",           0.0,         0.0,         0.0),
+    ("Sun",     1.0,    "assets/texture/sun.png",           0.0,         0.0,         0.1),
     ("Mercury", 0.15,   "assets/texture/planets/mercury.png", 2.0,       4.15,        0.3),
     ("Venus",   0.18,   "assets/texture/planets/venus.png",   3.0,       1.62,        0.2),
     ("Earth",   0.20,   "assets/texture/planets/earth_nasa.png", 4.0,    1.0,         0.5),
@@ -147,13 +147,9 @@ def main():
         glUseProgram(renderer.shader)
         camera.position_camera(view_loc)
         model_matrix = pyrr.matrix44.create_identity(dtype=np.float32)
-        time_elapsed = glfw.get_time()
+        # Use simulation time
+        time_elapsed = start_time + glfw.get_time()
         
-        # Create rotation around X and Y axes (same as before)
-        rot_x = pyrr.Matrix44.from_x_rotation(1.5)
-        rot_y = pyrr.Matrix44.from_y_rotation(planet.rotation_speed * time_elapsed)
-        rotation_matrix = pyrr.matrix44.multiply(rot_x, rot_y)
-        model_matrix = pyrr.matrix44.multiply(model_matrix, rotation_matrix)
         
         for planet in planets:
             if planet.parent == "Earth":
@@ -180,7 +176,7 @@ def main():
                     planet.orbit_radius * np.sin(angle)
                 ])
             model_matrix = pyrr.matrix44.create_from_translation(pos)
-            planet.draw(model_loc, model_matrix, time_elapsed)
+            planet.draw(model_loc, model_matrix, time_elapsed, planet.rotation_speed)
             
             # --- Draw atmosphere for Earth ---
             if planet.name == "Earth":
@@ -190,8 +186,7 @@ def main():
                 glUniform3f(solid_color_loc, 0.8, 0.9, 1.0)  # Light blue
                 planet.draw_atmosphere(model_loc, model_matrix)
                 glUniform1i(use_solid_color_loc, 0)  # Restore to textured mode
-        # Use simulation time
-        time_elapsed = start_time + glfw.get_time()
+        
         
         glfw.swap_buffers(renderer.window)
     glfw.terminate()

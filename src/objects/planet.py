@@ -77,7 +77,7 @@ class Planet:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
 
-    def draw(self, model_loc, model_matrix, time_elapsed):
+    def draw(self, model_loc, model_matrix, time_elapsed, rotation_speed):
         """
         Render the planet by applying rotation and drawing using OpenGL.
 
@@ -98,6 +98,12 @@ class Planet:
         # # Combine orbit and rotation
         # model_matrix = pyrr.matrix44.multiply(model_matrix, orbit_translation)
         # model_matrix = pyrr.matrix44.multiply(model_matrix, rotation_matrix)
+
+        # Create rotation around X and Y axes (same as before)
+        rot_x = pyrr.Matrix44.from_x_rotation(1.5)
+        rot_y = pyrr.Matrix44.from_y_rotation(rotation_speed * time_elapsed)
+        rotation_matrix = pyrr.matrix44.multiply(rot_x, rot_y)
+        model_matrix = pyrr.matrix44.multiply(rotation_matrix, model_matrix)
 
         # Send model matrix to shader
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, model_matrix)
@@ -175,3 +181,6 @@ class Planet:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
         glBindVertexArray(0)
         glDisable(GL_BLEND)
+    
+    def draw_ring(self):
+        pass
