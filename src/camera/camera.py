@@ -4,6 +4,8 @@ import numpy as np
 from OpenGL.GL import *
 from pyrr import Vector3, Matrix44, matrix44
 
+from ray_tracing.vectors import normalize
+
 class CAMERA:
     def __init__(
         self, window, camera_eye, camera_target, camera_up, camera_rot=[0.0, 0.0, 0.0]
@@ -93,3 +95,9 @@ class CAMERA:
             Matrix44.from_z_rotation(np.radians(self.camera_rot.z)),
         )
         return matrix44.multiply(rotation_matrix, view)
+    def get_ray(self, x, y, dx=0.5, dy=0.5):
+        u = ((x + dx) / self.width) * 2 - 1
+        v = 1 - ((y + dy) / self.height) * 2
+        u *= self.aspect_ratio
+        direction = normalize(np.array([u, v, -1.0]))
+        return (self.origin, direction)
