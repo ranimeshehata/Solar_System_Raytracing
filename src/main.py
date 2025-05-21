@@ -18,6 +18,20 @@ SECTORS = 36
 STACKS = 18
 TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = parse_json()
 
+PLANET_DATA = [
+    # name, radius, texture, orbit_radius, orbit_speed, rotation_speed
+    ("Mercury", 0.1, "assets/texture/planets/mercury.png", 2.0, 4.15, 0.3),
+    ("Venus",   0.15, "assets/texture/planets/venus.png", 3.0, 1.62, 0.2),
+    ("Earth",   0.5, "assets/texture/planets/earth_nasa.png", 5.0, 1.0, 0.5),
+    ("Mars",    0.18, "assets/texture/planets/mars.png", 7.0, 0.53, 0.4),
+    ("Jupiter", 0.3, "assets/texture/planets/jupiter.png", 10.0, 0.08, 0.6),
+    ("Saturn",  0.25, "assets/texture/planets/saturn/saturn.png", 13.0, 0.03, 0.7),
+    ("Uranus",  0.2, "assets/texture/planets/uranus.png", 16.0, 0.011, 0.8),
+    ("Neptune", 0.15, "assets/texture/planets/neptune.png", 19.0, 0.006, 0.9),
+    # Example for the Moon (orbits Earth)
+    ("Moon", 0.05, "assets/texture/moon.png", 0.8, 12.0, 1.0, "Earth"),
+]
+
 
 def main():
     renderer = WindowRenderer(
@@ -28,14 +42,30 @@ def main():
         window_title=WINDOW_TITLE,
     )
     renderer.create_shader()
-
-    venus = Planet(
-        r=0.5,
-        texture_path="assets/texture/planets/earth_nasa.png",
-        sectors=SECTORS,
-        stacks=STACKS,
-        rotation_speed=0.5,
-    )
+    
+    # --- Initialize the planets ---
+    planets = []
+    for data in PLANET_DATA:
+        if len(data) == 7:
+            name, r, texture, orbit_radius, orbit_speed, rotation_speed, parent = data
+        else:
+            name, r, texture, orbit_radius, orbit_speed, rotation_speed = data
+            parent = None
+        planet = Planet(
+            r=r,
+            texture_path=texture,
+            sectors=SECTORS,
+            stacks=STACKS,
+            rotation_speed=rotation_speed,
+            orbit_radius=orbit_radius,
+            orbit_speed=orbit_speed,
+            parent=parent
+        )
+        planet.name = name
+        planets.append(planet)
+    
+    
+    
 
     camera = CAMERA(renderer.window, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP)
 
@@ -76,7 +106,36 @@ def main():
         glUseProgram(renderer.shader)
         camera.position_camera(view_loc)
         model_matrix = pyrr.matrix44.create_identity(dtype=np.float32)
-        venus.draw(model_loc, model_matrix, glfw.get_time())
+        time_elapsed = glfw.get_time()
+        for planet in planets:
+            if planet.parent == "Earth":
+                # Moon orbits Earth
+                earth = next(p for p in planets if p.name == "Earth")
+                earth_angle = earth.orbit_speed * time_elapsed
+                earth_pos = np.array([
+                    earth.orbit_radius * np.cos(earth_angle),
+                    0,
+                    earth.orbit_radius * np.sin(earth_angle)
+                ])
+                moon_angle = planet.orbit_speed * time_elapsed
+                moon_pos = earth_pos + np.array([
+                    planet.orbit_radius * np.cos(moon_angle),
+                    0,
+                    planet.orbit_radius * np.sin(moon_angle)
+                ])
+                pos = moon_pos
+            else:
+                angle = planet.orbit_speed * time_elapsed
+                pos = np.array([
+                    planet.orbit_radius * np.cos(angle),
+                    0,
+                    planet.orbit_radius * np.sin(angle)
+                ])
+            model_matrix = pyrr.matrix44.create_from_translation(pos)
+            planet.draw(model_loc, model_matrix, time_elapsed)
+        # for planet in planets:
+        #     planet.draw(model_loc, pyrr.matrix44.create_identity(dtype=np.float32), glfw.get_time())
+
 
         glfw.swap_buffers(renderer.window)
     glfw.terminate()

@@ -18,7 +18,7 @@ class Planet:
         vao, vbo, ebo: OpenGL buffer identifiers.
     """
 
-    def __init__(self, r, texture_path, sectors=36, stacks=18, rotation_speed=0.5):
+    def __init__(self, r, texture_path, sectors=36, stacks=18, rotation_speed=0.5, orbit_radius=0.0, orbit_speed=0.0, parent=None):
         """
         Initialize the planet with geometry and texture.
 
@@ -34,6 +34,9 @@ class Planet:
         self.sectors = sectors
         self.stacks = stacks
         self.rotation_speed = rotation_speed
+        self.orbit_radius = orbit_radius
+        self.orbit_speed = orbit_speed
+        self.parent = parent
 
         # Generate sphere geometry
         self.sphere = Sphere(r=self.radius, sectors=self.sectors, stacks=self.stacks)
@@ -83,6 +86,20 @@ class Planet:
             model_matrix (np.ndarray): Initial model transformation matrix (4x4).
             time_elapsed (float): Time passed (used to animate rotation).
         """
+        
+        # Compute orbit translation
+        # angle = self.orbit_speed * time_elapsed
+        # orbit_translation = pyrr.matrix44.create_from_translation([
+        #     self.orbit_radius * np.cos(angle),
+        #     0.0,
+        #     self.orbit_radius * np.sin(angle)
+        # ], dtype=np.float32)
+
+        # # Combine orbit and rotation
+        # model_matrix = pyrr.matrix44.multiply(model_matrix, orbit_translation)
+        # model_matrix = pyrr.matrix44.multiply(model_matrix, rotation_matrix)
+
+
         # Create rotation around X and Y axes
         rot_x = pyrr.Matrix44.from_x_rotation(1.5)
         rot_y = pyrr.Matrix44.from_y_rotation(self.rotation_speed * time_elapsed)
