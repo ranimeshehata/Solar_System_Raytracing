@@ -175,7 +175,15 @@ def main():
                 ])
             model_matrix = pyrr.matrix44.create_from_translation(pos)
             planet.draw(model_loc, model_matrix, time_elapsed)
-        
+            
+            # --- Draw atmosphere for Earth ---
+            if planet.name == "Earth":
+                glUseProgram(renderer.shader)
+                camera.position_camera(view_loc)
+                glUniform1i(use_solid_color_loc, 1)  # Enable solid color
+                glUniform3f(solid_color_loc, 0.4, 0.6, 1.0)  # Light blue
+                planet.draw_atmosphere(model_loc, model_matrix)
+                glUniform1i(use_solid_color_loc, 0)  # Restore to textured mode
         # Use simulation time
         time_elapsed = start_time + glfw.get_time()
         

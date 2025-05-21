@@ -7,9 +7,11 @@ uniform bool useSolidColor;
 uniform vec3 solidColor;        
 
 void main() {
+
+    vec4 texColor = texture(samplerTex, TexCoord);
     if (useSolidColor) {
-        FragColor = vec4(solidColor, 1.0);
+        FragColor = vec4(solidColor, 0.8); // Use alpha for atmosphere
     } else {
-        FragColor = texture(samplerTex, TexCoord); 
-}
+        FragColor = texColor;
+    }
 }

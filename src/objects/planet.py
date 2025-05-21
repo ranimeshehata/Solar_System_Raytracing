@@ -161,3 +161,26 @@ class Planet:
             np.array(self.indices, dtype=np.uint32),
             GL_STATIC_DRAW,
         )
+    
+    def draw_atmosphere(self, model_loc, model_matrix, color=(0.4, 0.6, 1.0), alpha=0.25):
+        """
+        Draw a semi-transparent, slightly larger sphere to simulate atmosphere.
+        Args:
+            model_loc (int): Location of the 'model' uniform in the shader program.
+            model_matrix (np.ndarray): Model transformation matrix (4x4).
+            color (tuple): RGB color of the atmosphere.
+            alpha (float): Alpha transparency.
+        """
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        # Scale up the model matrix for the atmosphere shell
+        scale = pyrr.matrix44.create_from_scale([1.5, 1.5, 1.5])
+        atmosphere_matrix = pyrr.matrix44.multiply(model_matrix, scale)
+        glUniformMatrix4fv(model_loc, 1, GL_FALSE, atmosphere_matrix)
+        # Use solid color (set in main loop)
+        glBindVertexArray(self.vao)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.ebo)
+        glDrawElements(GL_TRIANGLES, len(self.indices), GL_UNSIGNED_INT, None)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+        glBindVertexArray(0)
+        glDisable(GL_BLEND)
