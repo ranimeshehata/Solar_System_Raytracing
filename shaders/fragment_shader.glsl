@@ -10,7 +10,7 @@ void main() {
 
     vec4 texColor = texture(samplerTex, TexCoord);
     if (useSolidColor) {
-        FragColor = vec4(solidColor, 0.8); // Use alpha for atmosphere
+        FragColor = vec4(solidColor, 0.3); // Use alpha for atmosphere
     } else {
         FragColor = texColor;
     }

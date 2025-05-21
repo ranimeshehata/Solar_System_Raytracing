@@ -99,15 +99,6 @@ class Planet:
         # model_matrix = pyrr.matrix44.multiply(model_matrix, orbit_translation)
         # model_matrix = pyrr.matrix44.multiply(model_matrix, rotation_matrix)
 
-
-        # Create rotation around X and Y axes
-        rot_x = pyrr.Matrix44.from_x_rotation(1.5)
-        rot_y = pyrr.Matrix44.from_y_rotation(self.rotation_speed * time_elapsed)
-
-        # Combine rotations and update model matrix
-        rotation_matrix = pyrr.matrix44.multiply(rot_x, rot_y)
-        model_matrix = pyrr.matrix44.multiply(model_matrix, rotation_matrix)
-
         # Send model matrix to shader
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, model_matrix)
 
@@ -174,8 +165,8 @@ class Planet:
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         # Scale up the model matrix for the atmosphere shell
-        scale = pyrr.matrix44.create_from_scale([1.5, 1.5, 1.5])
-        atmosphere_matrix = pyrr.matrix44.multiply(model_matrix, scale)
+        scale = pyrr.matrix44.create_from_scale([1.25, 1.25, 1.25])
+        atmosphere_matrix = pyrr.matrix44.multiply(scale, model_matrix)  # <-- scale first, then translate/rotate
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, atmosphere_matrix)
         # Use solid color (set in main loop)
         glBindVertexArray(self.vao)

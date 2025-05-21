@@ -149,6 +149,12 @@ def main():
         model_matrix = pyrr.matrix44.create_identity(dtype=np.float32)
         time_elapsed = glfw.get_time()
         
+        # Create rotation around X and Y axes (same as before)
+        rot_x = pyrr.Matrix44.from_x_rotation(1.5)
+        rot_y = pyrr.Matrix44.from_y_rotation(planet.rotation_speed * time_elapsed)
+        rotation_matrix = pyrr.matrix44.multiply(rot_x, rot_y)
+        model_matrix = pyrr.matrix44.multiply(model_matrix, rotation_matrix)
+        
         for planet in planets:
             if planet.parent == "Earth":
                 # Moon orbits Earth
@@ -181,7 +187,7 @@ def main():
                 glUseProgram(renderer.shader)
                 camera.position_camera(view_loc)
                 glUniform1i(use_solid_color_loc, 1)  # Enable solid color
-                glUniform3f(solid_color_loc, 0.4, 0.6, 1.0)  # Light blue
+                glUniform3f(solid_color_loc, 0.8, 0.9, 1.0)  # Light blue
                 planet.draw_atmosphere(model_loc, model_matrix)
                 glUniform1i(use_solid_color_loc, 0)  # Restore to textured mode
         # Use simulation time
