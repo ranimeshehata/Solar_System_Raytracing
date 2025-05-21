@@ -9,10 +9,10 @@ from utils.window_renderer import WindowRenderer
 from effects.skybox import SkyboxGL
 
 # constants
-WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = 800
-WINDOW_X = 800
-WINDOW_Y = 300
+WINDOW_WIDTH = 1920
+WINDOW_HEIGHT = 1020
+WINDOW_X = 0
+WINDOW_Y = 30
 WINDOW_TITLE = "Solar System Raytracing"
 SECTORS = 36
 STACKS = 18
@@ -65,9 +65,6 @@ def main():
         planet.name = name
         planets.append(planet)
     
-    
-    
-
     camera = CAMERA(renderer.window, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP)
 
     # --- Initialize the skybox ---
@@ -134,13 +131,9 @@ def main():
                 ])
             model_matrix = pyrr.matrix44.create_from_translation(pos)
             planet.draw(model_loc, model_matrix, time_elapsed)
-        # for planet in planets:
-        #     planet.draw(model_loc, pyrr.matrix44.create_identity(dtype=np.float32), glfw.get_time())
-
 
         glfw.swap_buffers(renderer.window)
     glfw.terminate()
-
 
 if __name__ == "__main__":
     main()
