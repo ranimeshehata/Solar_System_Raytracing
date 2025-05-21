@@ -16,6 +16,7 @@ def main():
     ambient = 0.1
     aspect_ratio = width / height
     camera_origin = np.array([0.0, 10.0, 50.0])
+    max_depth = 5
 
     # loading textures
     earth_tex = ImageTexture("assets/texture/planets/earth_nasa.png")
@@ -51,7 +52,7 @@ def main():
                         disable=(samples_per_pixel < 50)):  
                 dx, dy = np.random.rand(2)
                 ro, rd = camera.get_ray(x, y, dx, dy)
-                color += ray_color(ro, rd, scene, ambient)
+                color += ray_color(ro, rd, scene, ambient, max_depth, depth=0)
             
             image[y, x] = color / samples_per_pixel
 

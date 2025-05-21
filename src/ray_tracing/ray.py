@@ -3,7 +3,7 @@ import numpy as np
 from ray_tracing.vectors import random_point_on_sphere,normalize, reflect
 
 
-def soft_shadow(point, scene, current_sphere, light_sphere, num_samples=50):
+def soft_shadow(point, scene, current_sphere, light_sphere, num_samples=10):
     shadow_count = 0
     for _ in range(num_samples):
         light_point = random_point_on_sphere(light_sphere.center, light_sphere.radius)
@@ -25,7 +25,10 @@ def soft_shadow(point, scene, current_sphere, light_sphere, num_samples=50):
     visibility = 1 - (shadow_count / num_samples)
     return visibility ** 3
 
-def ray_color(ray_origin, ray_dir, scene, ambient):
+def ray_color(ray_origin, ray_dir, scene, ambient, max_depth, depth=0):
+    if depth > max_depth:
+        return np.zeros(3, dtype=np.float32)
+
     hit_record = scene.hit(ray_origin, ray_dir)
     if not hit_record:
         return np.zeros(3, dtype=np.float32)
