@@ -77,3 +77,19 @@ class CAMERA:
 
         view = matrix44.multiply(rotation_matrix, view)
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, view)
+
+    def get_view_matrix(self):
+        """
+        Returns the current view matrix (with rotation applied).
+        """
+        view = Matrix44.look_at(
+            eye=self.camera_eye, target=self.camera_target, up=self.camera_up
+        )
+        rotation_matrix = matrix44.multiply(
+            matrix44.multiply(
+                Matrix44.from_x_rotation(np.radians(self.camera_rot.x)),
+                Matrix44.from_y_rotation(np.radians(self.camera_rot.y)),
+            ),
+            Matrix44.from_z_rotation(np.radians(self.camera_rot.z)),
+        )
+        return matrix44.multiply(rotation_matrix, view)

@@ -94,6 +94,15 @@ class Planet:
         # Send model matrix to shader
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, model_matrix)
 
+        # --- Bind the planet's texture and set the sampler uniform ---
+        glActiveTexture(GL_TEXTURE0)
+        glBindTexture(GL_TEXTURE_2D, self.texture)
+        # Get the currently active shader program
+        program = glGetIntegerv(GL_CURRENT_PROGRAM)
+        tex_loc = glGetUniformLocation(program, "samplerTex")  # Use your sampler name
+        if tex_loc != -1:
+            glUniform1i(tex_loc, 0)  # Texture unit 0
+
         # Bind VAO and draw the elements
         glBindVertexArray(self.vao)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.ebo)
