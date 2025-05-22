@@ -22,7 +22,7 @@ STACKS = 18
 
 def main():
     TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = get_camera_config()
-    
+
     renderer = WindowRenderer(
         window_w=WINDOW_WIDTH,
         window_h=WINDOW_HEIGHT,
