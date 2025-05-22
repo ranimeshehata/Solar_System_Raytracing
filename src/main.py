@@ -3,11 +3,10 @@ import glfw
 import numpy as np
 from OpenGL.GL import *
 from camera.camera import CAMERA
-from objects.planet import Planet
 from utils.json_parser import parse_json
 from utils.window_renderer import WindowRenderer
 from effects.skybox import SkyboxGL
-from transformation.orbit import Orbit
+from transformation.transformation import Transform
 from effects.saturn_ring import SaturnRing
 
 
@@ -25,16 +24,16 @@ TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = parse_json()
 
 PLANET_DATA = [
     # name,      radius, texture,                           orbit_radius, orbit_speed, rotation_speed, parent
-    ("Sun", 1.0, "assets/texture/sun.png", 0.0, 0.0, 0.1),
-    ("Mercury", 0.15, "assets/texture/planets/mercury.png", 2.0, 4.15, 0.3),
-    ("Venus", 0.18, "assets/texture/planets/venus.png", 3.0, 1.62, 0.2),
-    ("Earth", 0.20, "assets/texture/planets/earth_nasa.png", 4.0, 1.0, 0.5),
-    ("Mars", 0.17, "assets/texture/planets/mars.png", 5.5, 0.53, 0.4),
-    ("Jupiter", 0.40, "assets/texture/planets/jupiter.png", 7.5, 0.08, 0.6),
-    ("Saturn", 0.35, "assets/texture/planets/saturn/saturn.png", 9.0, 0.03, 0.7),
-    ("Uranus", 0.28, "assets/texture/planets/uranus.png", 11.0, 0.011, 0.8),
-    ("Neptune", 0.27, "assets/texture/planets/neptune.png", 13.0, 0.006, 0.9),
-    ("Moon", 0.07, "assets/texture/moon.png", 0.5, 12.0, 1.0, "Earth"),
+    ("Sun",     1.0,    "assets/texture/sun.png",           0.0,         0.0,         0.04),
+    ("Mercury", 0.15,   "assets/texture/planets/mercury.png", 2.0,       4.15,        0.3),
+    ("Venus",   0.18,   "assets/texture/planets/venus.png",   3.0,       1.62,        0.2),
+    ("Earth",   0.20,   "assets/texture/planets/earth_nasa.png", 4.0,    1.0,         0.5),
+    ("Mars",    0.17,   "assets/texture/planets/mars.png",     5.5,      0.53,        0.4),
+    ("Jupiter", 0.40,   "assets/texture/planets/jupiter.png",  7.5,      0.08,        0.6),
+    ("Saturn",  0.35,   "assets/texture/planets/saturn/saturn.png", 9.0, 0.03,        0.7),
+    ("Uranus",  0.28,   "assets/texture/planets/uranus.png",  11.0,      0.011,       0.8),
+    ("Neptune", 0.27,   "assets/texture/planets/neptune.png", 13.0,      0.006,       0.9),
+    ("Moon",    0.07,   "assets/texture/moon.png",            0.5,       12.0,        1.0,             "Earth"),
 ]
 
 
@@ -48,41 +47,12 @@ def main():
     )
     renderer.create_shader()
 
-    # --- Initialize the planets and orbits ---
-    planets = []
-    orbits = []
-    for data in PLANET_DATA:
-        if len(data) == 7:
-            name, r, texture, orbit_radius, orbit_speed, rotation_speed, parent = data
-        else:
-            name, r, texture, orbit_radius, orbit_speed, rotation_speed = data
-            parent = None
-        planet = Planet(
-            r=r,
-            texture_path=texture,
-            sectors=SECTORS,
-            stacks=STACKS,
-            rotation_speed=rotation_speed,
-            orbit_radius=orbit_radius,
-            orbit_speed=orbit_speed,
-            parent=parent,
-        )
-        planet.name = name
-        planets.append(planet)
-
-        # Add orbit for planets that orbit the sun (not the sun itself or moons)
-        if orbit_radius > 0 and parent is None:
-            orbits.append(Orbit(orbit_radius))
+    transform = Transform(data=PLANET_DATA, sectors=SECTORS, stacks=STACKS)
 
     camera = CAMERA(renderer.window, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP)
 
     # --- Initialize the skybox ---
     skybox = SkyboxGL("assets/texture/space.png")
-    saturn_ring = SaturnRing(
-        inner_radius=0.4,
-        outer_radius=0.8,
-        texture_path="assets/texture/planets/saturn/saturn_ring.png",
-    )
 
     glUseProgram(renderer.shader)
 
@@ -97,6 +67,8 @@ def main():
     view_loc = glGetUniformLocation(renderer.shader, "view")
     projection_loc = glGetUniformLocation(renderer.shader, "projection")
     model_loc = glGetUniformLocation(renderer.shader, "model")
+    use_solid_color_loc = glGetUniformLocation(renderer.shader, "useSolidColor")
+    solid_color_loc = glGetUniformLocation(renderer.shader, "solidColor")
 
     glUniformMatrix4fv(projection_loc, 1, GL_FALSE, projection)
     glEnable(GL_DEPTH_TEST)
@@ -118,6 +90,9 @@ def main():
         glfw.poll_events()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+        # Set Camera Position
+        camera.position_camera(view_loc)
+
         # Draw skybox first
         glDepthMask(GL_FALSE)
         glDepthFunc(GL_LEQUAL)
@@ -125,73 +100,22 @@ def main():
         glDepthMask(GL_TRUE)
         glDepthFunc(GL_LESS)
 
-        glUseProgram(renderer.shader)
-        camera.position_camera(view_loc)
-
-        use_solid_color_loc = glGetUniformLocation(renderer.shader, "useSolidColor")
-        solid_color_loc = glGetUniformLocation(renderer.shader, "solidColor")
-
-        glUniform1i(use_solid_color_loc, 1)  # Enable solid color
-        glUniform3f(solid_color_loc, 0.6235, 0.6314, 0.6235)
-
         # Draw orbits
-        for orbit in orbits:
-            orbit.draw(model_loc)
+        transform.place_orbits(
+            renderer.shader, use_solid_color_loc, solid_color_loc, model_loc
+        )
 
-        glUniform1i(use_solid_color_loc, 0)  # Restore to textured mode for planets
-
-        # Draw planets
-        glUseProgram(renderer.shader)
-        camera.position_camera(view_loc)
-        model_matrix = pyrr.matrix44.create_identity(dtype=np.float32)
         # Use simulation time
         time_elapsed = start_time + glfw.get_time()
 
-        for planet in planets:
-            if planet.parent == "Earth":
-                # Moon orbits Earth
-                earth = next(p for p in planets if p.name == "Earth")
-                earth_angle = earth.orbit_speed * time_elapsed
-                earth_pos = np.array(
-                    [
-                        earth.orbit_radius * np.cos(earth_angle),
-                        0,
-                        earth.orbit_radius * np.sin(earth_angle),
-                    ]
-                )
-                moon_angle = planet.orbit_speed * time_elapsed
-                moon_pos = earth_pos + np.array(
-                    [
-                        planet.orbit_radius * np.cos(moon_angle),
-                        0,
-                        planet.orbit_radius * np.sin(moon_angle),
-                    ]
-                )
-                pos = moon_pos
-            else:
-                angle = planet.orbit_speed * time_elapsed
-                pos = np.array(
-                    [
-                        planet.orbit_radius * np.cos(angle),
-                        0,
-                        planet.orbit_radius * np.sin(angle),
-                    ]
-                )
-            model_matrix = pyrr.matrix44.create_from_translation(pos)
-            planet.draw(model_loc, model_matrix, time_elapsed, planet.rotation_speed)
-
-            if planet.name == "Saturn":
-                saturn_model_matrix = pyrr.matrix44.create_from_translation(pos)
-                saturn_ring.draw(model_loc, saturn_model_matrix)
-
-            # --- Draw atmosphere for Earth ---
-            if planet.name == "Earth":
-                glUseProgram(renderer.shader)
-                camera.position_camera(view_loc)
-                glUniform1i(use_solid_color_loc, 1)  # Enable solid color
-                glUniform3f(solid_color_loc, 0.8, 0.9, 1.0)  # Light blue
-                planet.draw_atmosphere(model_loc, model_matrix)
-                glUniform1i(use_solid_color_loc, 0)  # Restore to textured mode
+        # Draw planets
+        transform.place_planets(
+            time_elapsed,
+            model_loc,
+            use_solid_color_loc,
+            solid_color_loc,
+            renderer.shader,
+        )
 
         glfw.swap_buffers(renderer.window)
     glfw.terminate()
