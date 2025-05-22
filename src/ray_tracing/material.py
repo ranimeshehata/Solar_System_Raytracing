@@ -9,6 +9,6 @@ class Material:
     
     def emitted(self, u, v):
         if self.emissive:
-            return self.texture.value(u, v) * 1.2
+            return self.texture.value(u, v) * 3
         else:
             return np.zeros(3, dtype=np.float32)

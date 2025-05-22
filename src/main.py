@@ -1,14 +1,15 @@
 import pyrr
+from scene_builder import PLANET_DATA, get_camera_config
+from camera.camera import CAMERA
+from objects.planet import Planet
+from transformation.orbit import Orbit
+from effects.skybox import SkyboxGL
+from effects.saturn_ring import SaturnRing
+from transformation.transformation import Transform
+from utils.window_renderer import WindowRenderer 
 import glfw
 import numpy as np
 from OpenGL.GL import *
-from camera.camera import CAMERA
-from utils.json_parser import parse_json
-from utils.window_renderer import WindowRenderer
-from effects.skybox import SkyboxGL
-from transformation.transformation import Transform
-from effects.saturn_ring import SaturnRing
-
 
 # constants
 WINDOW_WIDTH = 1920
@@ -19,25 +20,9 @@ WINDOW_TITLE = "Solar System Raytracing"
 SECTORS = 36
 STACKS = 18
 
-# Load scene configuration from JSON
-TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = parse_json()
-
-PLANET_DATA = [
-    # name,      radius, texture,                           orbit_radius, orbit_speed, rotation_speed, parent
-    ("Sun",     1.0,    "assets/texture/sun.png",           0.0,         0.0,         0.04),
-    ("Mercury", 0.15,   "assets/texture/planets/mercury.png", 2.0,       4.15,        0.3),
-    ("Venus",   0.18,   "assets/texture/planets/venus.png",   3.0,       1.62,        0.2),
-    ("Earth",   0.20,   "assets/texture/planets/earth_nasa.png", 4.0,    1.0,         0.5),
-    ("Mars",    0.17,   "assets/texture/planets/mars.png",     5.5,      0.53,        0.4),
-    ("Jupiter", 0.40,   "assets/texture/planets/jupiter.png",  7.5,      0.08,        0.6),
-    ("Saturn",  0.35,   "assets/texture/planets/saturn/saturn.png", 9.0, 0.03,        0.7),
-    ("Uranus",  0.28,   "assets/texture/planets/uranus.png",  11.0,      0.011,       0.8),
-    ("Neptune", 0.27,   "assets/texture/planets/neptune.png", 13.0,      0.006,       0.9),
-    ("Moon",    0.07,   "assets/texture/moon.png",            0.5,       12.0,        1.0,             "Earth"),
-]
-
-
 def main():
+    TIME, CAMERA_EYE, CAMERA_TARGET, CAMERA_UP = get_camera_config()
+    
     renderer = WindowRenderer(
         window_w=WINDOW_WIDTH,
         window_h=WINDOW_HEIGHT,
