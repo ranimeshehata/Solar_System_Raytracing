@@ -8,7 +8,7 @@ from ray_tracing.vectors import normalize
 
 class CAMERA:
     def __init__(
-        self, window, camera_eye, camera_target, camera_up, camera_rot=[0.0, 0.0, 0.0],width=400,
+        self, window, camera_eye, camera_target, camera_up, camera_rot=[0.0, 0.0, 0.0],width=1000,
         height=300,  
     ):
         self.camera_eye = Vector3(camera_eye)
@@ -19,7 +19,7 @@ class CAMERA:
         self.start_time = time.time()
         self.width = width  
         self.height = height  
-        self.aspect_ratio = width / height 
+        self.aspect_ratio = self.width / self.height 
 
     def _handle_input(self):
         current_time = time.time()
@@ -99,9 +99,31 @@ class CAMERA:
             Matrix44.from_z_rotation(np.radians(self.camera_rot.z)),
         )
         return matrix44.multiply(rotation_matrix, view)
-    def get_ray(self, x, y, dx=0.5, dy=0.5):
-        u = ((x + dx) / self.width) * 2 - 1
-        v = 1 - ((y + dy) / self.height) * 2
-        u *= self.aspect_ratio
-        direction = normalize(np.array([u, v, -1.0]))
-        return (self.camera_eye, direction)
+    
+    def get_ray(self, x, y, dx=0.5, dy=0.5, fov=60.0):
+        # ndc from -1 , 1
+        ndc_x = ((x + dx) / self.width) * 2.0 - 1.0
+        ndc_y = 1.0 - ((y + dy) / self.height) * 2.0
+
+        # ndc to viewport 
+        scale = np.tan(np.radians(fov * 0.5))
+        viewport_x = ndc_x * self.aspect_ratio * scale
+        viewport_y = ndc_y * scale
+
+        # ray in camera space
+        ray_dir_camera = np.array([viewport_x, viewport_y, -1.0])
+        ray_dir_camera = normalize(ray_dir_camera)
+
+        # transform ray_dir_camera to world space
+        forward = normalize(self.camera_target - self.camera_eye)
+        right = normalize(np.cross(forward, self.camera_up))
+        up = normalize(np.cross(right, forward))
+
+        # construct world ray
+        ray_dir_world = normalize(
+            ray_dir_camera[0] * right +
+            ray_dir_camera[1] * up +
+            ray_dir_camera[2] * -forward  
+        )
+
+        return self.camera_eye, ray_dir_world

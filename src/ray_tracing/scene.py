@@ -1,8 +1,8 @@
 class Scene:
-    def __init__(self, spheres, light):
+    def __init__(self, spheres, light,background_texture=None):
         self.spheres = spheres
         self.light = light  
-    
+        self.background_texture = background_texture
     def hit(self, ray_origin, ray_dir):
         closest_hit = None
         closest_t = float('inf')

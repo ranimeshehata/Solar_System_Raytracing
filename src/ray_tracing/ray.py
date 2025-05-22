@@ -1,6 +1,6 @@
 import numpy as np
 
-from ray_tracing.vectors import random_point_on_sphere,normalize, reflect
+from ray_tracing.vectors import get_sphere_uv, random_point_on_sphere,normalize, reflect
 
 
 def soft_shadow(point, scene, current_sphere, light_sphere, num_samples=10):
@@ -31,6 +31,10 @@ def ray_color(ray_origin, ray_dir, scene, ambient, max_depth, depth=0):
 
     hit_record = scene.hit(ray_origin, ray_dir)
     if not hit_record:
+        if scene.background_texture:
+            dir = normalize(ray_dir)
+            u, v = get_sphere_uv(dir)
+            return scene.background_texture.value(u, v)
         return np.zeros(3, dtype=np.float32)
     if hit_record.sphere.material.emissive:
         return hit_record.sphere.material.emitted(hit_record.u, hit_record.v)
