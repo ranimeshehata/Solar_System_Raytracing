@@ -11,6 +11,7 @@
 
 - [Overview](#overview)
 - [Code Explanation](#code-explanation)
+- [How to Run Demo](#how-to-run-demo)
 - [Images](#images)
 - [Video](#video)
 - [Resources](#resources)
@@ -60,19 +61,40 @@ This course project involves building a ray tracer that simulates and renders th
 }
 ```
 
-## Images 
+## How to Run Demo
+
+- Run `main.py` to navigate the solar system simulation in real-time (no ray tracing).
+- Use the keyboard controls for movement and rotation:
+
+| Action            | Keys            |
+| ----------------- | --------------- |
+| Move Forward      | W               |
+| Move Backward     | S               |
+| Move Left         | A               |
+| Move Right        | D               |
+| Move Up           | Q               |
+| Move Down         | E               |
+| Rotate Up         | ↑ (Up arrow)    |
+| Rotate Down       | ↓ (Down arrow)  |
+| Rotate Left       | ← (Left arrow)  |
+| Rotate Right      | → (Right arrow) |
+| Rotate Clockwise  | Z               |
+| Rotate Counter-CW | X               |
+
+- Run `ray_tracer.py` to generate ray-traced images:
+  - Choose `1` for a single image.
+  - Choose `2` for a video.
+- Configuration is read from `input/scene_config.json`.
+
+## Images
+
 `Note: This is an image before applying ray tracing from running the main script.`
 
-![image](image.png)
+![full scene image before ray tracing](image.png)
 
 ## Video
 
-<p align="center">
-  <video width="1000" height="300" controls>
-    <source src="video\solar_system_60_frames.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</p>
+[video of the scene after ray tracing](https://github.com/nouranKhalil/Solar_System_Raytracing/blob/main/video/solar_system_60_frames.mp4)
 
 ## Resources
 
