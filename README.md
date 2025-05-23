@@ -1,46 +1,93 @@
-# Course Project: Solar System Ray Tracing
+# Solar System Raytracing
 
-## Objective
-Apply computer graphics and ray tracing techniques to render a single high-quality scene of the Solar System at a given simulation time `t`, from a specified camera position, camera orientation, and up vector.
+![Language](https://img.shields.io/badge/Language-Python%203.8+-blue)
+![Graphics](https://img.shields.io/badge/Library-OpenGL-lightgrey)
+![Rendering](https://img.shields.io/badge/Rendering-Raytracing-critical)
+![Framework](https://img.shields.io/badge/Framework-Custom%20Engine-orange)
+![Project](https://img.shields.io/badge/Project-Solar%20System%20Simulation-yellow)
+![Textures](https://img.shields.io/badge/Textures-NASA%20Maps-green)
 
-## Team Members and Task Split
+## Table of Contents
 
-### Team Member 1: **Ray Tracing** (since it is the core, I left it alone)
-- **Ray-Sphere Intersection**
-  - Implement ray-object intersection (planets, Moon, Sun modeled as spheres)
-- **Basic Ray Tracing Engine**
-  - Set up the ray tracing loop and rendering logic
+- [Overview](#overview)
+- [Code Explanation](#code-explanation)
+- [Images](#images)
+- [Video](#video)
+- [Resources](#resources)
+- [Team](#team)
 
-### Team Member 2: **Lighting + Sun Emission + Camera Setup**
-- **Lighting Models**
-  - Implement ambient, diffuse, and specular lighting (Phong or Blinn-Phong model)
-- **Sun Emission**
-  - Simulate the Sun as an emissive light source
-- **Global Illumination & Shading**
-  - Integrate light interaction (shading calculations)
-- **Camera Setup**
-  - Handle camera position `(x, y, z)`
-  - Implement look-at target and up vector
-  - Generate primary rays from camera
+## Overview
 
-### Team Member 3: **Textures + Orbits + Effects**
-- **Textures**
-  - Apply texture mapping to planets and Moon (use NASA textures or similar)
-- **Orbital & Rotational Transformations**
-  - Compute positions and rotations of planets and Moon at simulation time `t`
-- **Visual Effects & Skybox (Bonus)**
-  - Implement optional effects like atmospheric scattering, Sun's glow
-  - Add skybox (background starfield or galaxy)
+This course project involves building a ray tracer that simulates and renders the Solar System with high physical realism. The system uses camera parameters and simulation time to dynamically place celestial objects and generate images. It incorporates textures, lighting models, skyboxes, and visual effects to create a lifelike representation.
 
-> **Note:** The textures included in this project are from [Solar System Scope Textures](https://www.solarsystemscope.com/textures/) and are **not sourced from NASA**.
-> You are welcome to replace them with publicly available NASA textures if you prefer higher accuracy or realism.
+## Code Explanation
 
-## Bonus Features
-- **Skybox** (Team Member 3)
-- **Atmospheric Scattering / Sun’s Glow** (Team Member 2)
-- **Real-time or Semi-real-time Renderer** (Collaborative, optional)
+### Main Modules:
 
+- `main.py`: Orchestrates scene setup, simulation timing, camera positioning, and starts rendering.
+- `raytracer.py`: Handles ray creation, intersection detection, shading, and recursive ray reflection.
+- `objects/planet.py`: Defines `Planet` class and includes support for textures and atmosphere effects.
+- `sphere.py`: Generates 3D sphere geometries for celestial bodies.
+- `orbit.py`: Calculates planetary orbits.
+- `transformation.py`: Applies position and rotation transformations.
+- `saturn_ring.py`: Generates and textures Saturn's ring.
+- `effects/skybox.py`: Displays background stars using a skybox.
+- <span style="color: red;">`sun_glow.py`: Adds a billboard-based radiant glow for the sun.</span>
+- `json_parser.py`: Parses camera and simulation parameters from input JSON.
+- `utils/window_renderer.py`: Manages OpenGL context and shaders.
+- `camera.py`: Handles camera movement and view matrix logic.
+- `shaders/`: Vertex and fragment shaders for textured and alpha-blended rendering.
+- `assets/textures/`: Contains surface textures from NASA.
+
+### Rendering and Transformations
+
+- **Time-Based Transforms:** Uses time `t` to calculate orbits and rotations of planets.
+- **Lighting:** Uses Phong shading with emissive light from the sun.
+- **Atmosphere:** Earth’s atmosphere rendered with semi-transparent sphere and blending.
+- **Ray Building:** Converts pixel coordinates into world space rays with proper camera orientation.
+- **Aliasing Solution:** Implements supersampling by casting multiple rays per pixel and averaging results.
+
+### Input Format Example:
+
+```json
+{
+  "time": 86400,
+  "camera": {
+    "position": [0.0, 10.0, 50.0],
+    "look_at": [0.0, 0.0, 0.0],
+    "up": [0.0, 1.0, 0.0]
+  }
+}
+```
+
+## Images 
+`Note: This is an image before applying ray tracing from running the main script.`
+
+![image](image.png)
+
+## Video
+
+<p align="center">
+  <video width="1000" height="300" controls>
+    <source src="video\solar_system_60_frames.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</p>
 
 ## Resources
-- [**OpenGl Playlist**](https://youtu.be/bmCYgoCAyMQ?si=TPFQyBV041nCOI2d) – The GitHub repository for the code is available in the video description.
-- [**Solar System Simulator**](https://www.solarsystemscope.com/)
+
+- [Planet Texture Maps](https://planet-texture-maps.fandom.com/wiki/Mercury)
+- [Solar System Scope Textures](https://www.solarsystemscope.com/textures/)
+- [OpenGL Sphere](https://www.songho.ca/opengl/gl_sphere.html)
+- [LearnOpenGL Lighting](https://learnopengl.com/Lighting/Basic-Lighting)
+- [NASA 3D Resources](https://nasa3d.arc.nasa.gov/images)
+- [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
+- [Scratchapixel Ray Tracing](https://www.scratchapixel.com)
+
+## Team
+
+| Name                         | ID       |
+| ---------------------------- | -------- |
+| Rana Mohamed Ali             | 21010528 |
+| Ranime Ahmed Elsayed Shehata | 21010531 |
+| Noran Ashraf Youssef         | 21011492 |
