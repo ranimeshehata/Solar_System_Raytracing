@@ -94,7 +94,7 @@ This course project involves building a ray tracer that simulates and renders th
 
 ## Video
 
-[video of the scene after ray tracing](https://github.com/nouranKhalil/Solar_System_Raytracing/blob/main/video/solar_system_60_frames.mp4)
+[video of the scene after ray tracing](https://github.com/user-attachments/assets/cef729d7-82ca-4112-be1a-e9ff3d4ebb36)
 
 ## Resources
 
