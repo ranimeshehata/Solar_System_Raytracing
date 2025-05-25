@@ -1,7 +1,7 @@
 import imageio
 import os
 
-def generate_video_from_frames(input_dir, output_path, fps=1):
+def generate_video_from_frames(input_dir, output_path, fps=5):
     images = sorted([img for img in os.listdir(input_dir) if img.endswith(".png")])
     if not images:
         raise ValueError("No frames found.")

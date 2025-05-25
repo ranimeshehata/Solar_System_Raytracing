@@ -6,18 +6,18 @@ from camera.camera import CAMERA
 from ray_tracing.material import Material
 from ray_tracing.ray import ray_color
 from ray_tracing.scene import Scene
-from ray_tracing.sphere import Sphere
+from ray_tracing.sphere import Ring, Sphere
 from ray_tracing.texture import ImageTexture
 from scene_builder import PLANET_DATA, get_camera_config, calculate_planet_position, build_planet_dict
 from utils.generate_video import generate_video_from_frames
 
 WIDTH = 1000
 HEIGHT = 300
-SAMPLES_PER_PIXEL = 4
-AMBIENT = 0.1
-MAX_DEPTH = 5        
+SAMPLES_PER_PIXEL = 3
+AMBIENT = 0.01  
+MAX_DEPTH = 3      
 TIME_STEP = 0.1         
-TOTAL_FRAMES = 20       
+TOTAL_FRAMES = 50       
 FRAME_IDX = 0       
 
 def render_frame(time, frame_idx, output_dir, eye, target, up):
@@ -29,17 +29,48 @@ def render_frame(time, frame_idx, output_dir, eye, target, up):
                   width=WIDTH, 
                   height=HEIGHT)
 
-    # planets spheres
+    
     spheres = []
+    rings = [] 
+    
     for pdata in PLANET_DATA:
         pos = calculate_planet_position(pdata, time, planets_dict)
         name, radius, texture_path = pdata[0], pdata[1], pdata[2]
         tex = ImageTexture(texture_path)
-        mat = Material(tex, 
-                     emissive=(name == "Sun"), 
-                     specular_strength=0.3, 
-                     shininess=32)
+        
+        if name == "Sun":
+            mat = Material(
+                tex,
+                emissive=True,
+                specular_strength=0.0,
+                shininess=0,
+                halo=True,
+                halo_size=8.0,
+                halo_strength=1.5
+            )
+        else:
+            mat = Material(
+                tex,
+                emissive=(name == "Sun"),
+                specular_strength=0.4,
+                shininess=64
+            )
         spheres.append(Sphere(pos, radius, mat))
+        
+        if name == "Saturn":
+            ring_texture = ImageTexture("assets/texture/planets/saturn/saturn ring.png")
+            ring_mat = Material(
+                ring_texture,
+                emissive=False,
+                specular_strength=0.2,
+                shininess=32
+            )
+            rings.append(Ring(
+                center=pos,
+                inner_radius=radius * 1.5,
+                outer_radius=radius * 2.5,
+                material=ring_mat
+            ))
 
     # texture for the background
     sky_texture = ImageTexture("assets/texture/space.png")
@@ -47,8 +78,8 @@ def render_frame(time, frame_idx, output_dir, eye, target, up):
     # light source : sun
     light_sphere = next(s for s in spheres if s.material.emissive)
     
-    # scene creation
-    scene = Scene(spheres, light_sphere, background_texture=sky_texture)
+    # scene creation with rings
+    scene = Scene(spheres, light_sphere, rings=rings, background_texture=sky_texture)
 
     # initializing the image buffer
     image = np.zeros((HEIGHT, WIDTH, 3), dtype=np.float32)
@@ -62,13 +93,11 @@ def render_frame(time, frame_idx, output_dir, eye, target, up):
                 ro, rd = camera.get_ray(x, y, dx, dy)
                 # calculating pixel color
                 color += ray_color(ro, rd, scene, AMBIENT, MAX_DEPTH, 0)
+                
             # averaging over all samples
             image[y, x] = color / SAMPLES_PER_PIXEL
-    
-    # post processing
-    # Gamma correction
     image = (np.clip(image / 255, 0, 1) ** (1/2.2) * 255).astype(np.uint8)
-
+    
     filename = f"{output_dir}/frame_{frame_idx:04d}.png"
     Image.fromarray(image).save(filename)
     print(f"Saved frame {frame_idx} to {filename}")
@@ -104,3 +133,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
