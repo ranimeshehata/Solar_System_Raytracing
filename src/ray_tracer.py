@@ -11,9 +11,9 @@ from ray_tracing.texture import ImageTexture
 from scene_builder import PLANET_DATA, get_camera_config, calculate_planet_position, build_planet_dict
 from utils.generate_video import generate_video_from_frames
 
-WIDTH = 1000
-HEIGHT = 300
-SAMPLES_PER_PIXEL = 3
+WIDTH = 800
+HEIGHT = 200
+SAMPLES_PER_PIXEL = 5
 AMBIENT = 0.01  
 MAX_DEPTH = 3      
 TIME_STEP = 0.1         

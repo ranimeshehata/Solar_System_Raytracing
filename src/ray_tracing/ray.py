@@ -12,7 +12,8 @@ def hard_shadow(point, scene, current_sphere, light_sphere):
 
     # calculate the straight line distance to the light source
     dist_to_light = np.linalg.norm(light_dir)
-
+    if dist_to_light < 1e-4:
+        return 0.0 
     # normalize the light direction to use in ray casting
     light_dir = normalize(light_dir)
 
@@ -106,7 +107,7 @@ def ray_color(ray_origin, ray_dir, scene, ambient, max_depth, depth=0):
                     ray_angle = np.arctan2(np.dot(ray_dir_norm, sun_up), 
                                           np.dot(ray_dir_norm, sun_right))
                     
-                    ray_count = 8
+                    ray_count = 3
                     ray_factor = (np.sin(ray_angle * ray_count) ** 16) * (1.0 - corona_dist)
                     corona_color += np.array([1.5, 1.2, 0.8]) * ray_factor * 0.5
                 
